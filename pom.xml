@@ -10,138 +10,121 @@
     <name>Sample Serenity BDD project using JUnit 5 and Serenity Screenplay</name>
 
     <properties>
-        <serenity.version>4.2.22</serenity.version>
-        <junit5.version>5.10.2</junit5.version>
-        <maven.surefire.version>3.1.2</maven.surefire.version>
-        <maven.failsafe.version>3.1.2</maven.failsafe.version>
-        <maven.compiler.version>3.11.0</maven.compiler.version>
-        <assertj.version>3.24.2</assertj.version>
-        <logback.version>1.2.10</logback.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <serenity.version>4.0.30</serenity.version>
+        <junit5.version>5.11.0</junit5.version>
+        <maven.surefire.plugin.version>3.5.0</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>3.5.0</maven.failsafe.plugin.version>
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <assertj.version>3.24.2</assertj.version>
         <encoding>UTF-8</encoding>
         <tags></tags>
-        <parallel.tests>4</parallel.tests>
         <webdriver.base.url></webdriver.base.url>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-core</artifactId>
-            <version>${serenity.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-junit5</artifactId>
-            <version>${serenity.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-screenplay</artifactId>
-            <version>${serenity.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-ensure</artifactId>
-            <version>${serenity.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.serenity-bdd</groupId>
-            <artifactId>serenity-screenplay-webdriver</artifactId>
-            <version>${serenity.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <!-- JUNIT 5 DEPENDENCY-->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit5.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit5.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.failsafe.version}</version>
-                <configuration>
-                    <includes>
-                        <include>**/*Test.java</include>
-                        <include>**/Test*.java</include>
-                        <include>**/*TestSuite.java</include>
-                        <include>**/When*.java</include>
-                    </includes>
-                    <systemPropertyVariables>
-                        <webdriver.base.url>${webdriver.base.url}</webdriver.base.url>
-                        <junit.jupiter.extensions.autodetection.enabled>true</junit.jupiter.extensions.autodetection.enabled>
-                    </systemPropertyVariables>
-                    <parallel>classes</parallel>
-                    <threadCount>${parallel.tests}</threadCount>
-                    <forkCount>${parallel.tests}</forkCount>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <configuration>
-                    <source>16</source>
-                    <target>16</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>net.serenity-bdd.maven.plugins</groupId>
-                <artifactId>serenity-maven-plugin</artifactId>
-                <version>${serenity.version}</version>
-                <configuration>
-                  <tags>${tags}</tags>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>serenity-reports</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+
+  <dependencies>
+
+    <!-- JUnit 5 support for Serenity (prinesie JUnit Platform tranzitívne) -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-junit5</artifactId>
+      <version>${serenity.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Screenplay pattern -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-screenplay</artifactId>
+      <version>${serenity.version}</version>
+    </dependency>
+
+    <!-- WebDriver support -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-screenplay-webdriver</artifactId>
+      <version>${serenity.version}</version>
+    </dependency>
+
+    <!-- Screenplay REST API support (ak potrebuješ) -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-screenplay-rest</artifactId>
+      <version>${serenity.version}</version>
+    </dependency>
+
+    <!-- Serenity Ensure assertions -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-ensure</artifactId>
+      <version>${serenity.version}</version>
+    </dependency>
+
+    <!-- AssertJ -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- SLF4J 2.x kompatibilný Logback -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.4.14</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Compiler plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+
+      <!-- Surefire pre JUnit Platform -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin.version}</version>
+        <configuration>
+          <useModulePath>false</useModulePath>
+          <properties>
+            <configurationParameters>junit.jupiter.extensions.autodetection.enabled=true</configurationParameters>
+          </properties>
+          <systemPropertyVariables>
+            <webdriver.base.url>${webdriver.base.url}</webdriver.base.url>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+
+      <!-- Serenity reporty -->
+      <plugin>
+        <groupId>net.serenity-bdd.maven.plugins</groupId>
+        <artifactId>serenity-maven-plugin</artifactId>
+        <version>${serenity.version}</version>
+        <configuration>
+          <tags>${tags}</tags>
+        </configuration>
+        <executions>
+          <execution>
+            <id>serenity-reports</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>aggregate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
