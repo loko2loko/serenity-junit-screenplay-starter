@@ -7,13 +7,14 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Sample Serenity BDD project using JUnit 5 and Serenity Screenplay</name>
+    <name>Sample Serenity BDD project using JUnit 5, Serenity Screenplay and Cucumber</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <serenity.version>4.2.34</serenity.version>
         <junit5.version>5.13.0</junit5.version>
         <junit.platform.version>1.13.0</junit.platform.version>
+        <cucumber.version>7.20.1</cucumber.version>
         <maven.surefire.plugin.version>3.5.0</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>3.5.0</maven.failsafe.plugin.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
@@ -53,6 +54,18 @@
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-launcher</artifactId>
                 <version>${junit.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-suite</artifactId>
+                <version>${junit.platform.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-suite-api</artifactId>
+                <version>${junit.platform.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- JUnit Jupiter verzie -->
@@ -107,6 +120,30 @@
             <version>${serenity.version}</version>
         </dependency>
 
+        <!-- Cucumber integration -->
+        <dependency>
+            <groupId>net.serenity-bdd</groupId>
+            <artifactId>serenity-cucumber</artifactId>
+            <version>${serenity.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Cucumber Java for step definitions -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Cucumber JUnit Platform Engine for JUnit 5 -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- AssertJ -->
         <dependency>
             <groupId>org.assertj</groupId>
@@ -157,6 +194,20 @@
             <version>${junit.platform.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>${junit.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-api</artifactId>
+            <version>${junit.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -179,11 +230,17 @@
                 <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*TestRunner.java</include>
+                        <include>**/CucumberTestSuite.java</include>
+                    </includes>
                     <properties>
                         <configurationParameters>junit.jupiter.extensions.autodetection.enabled=true</configurationParameters>
                     </properties>
                     <systemPropertyVariables>
                         <webdriver.base.url>${webdriver.base.url}</webdriver.base.url>
+                        <cucumber.publish.quiet>true</cucumber.publish.quiet>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
