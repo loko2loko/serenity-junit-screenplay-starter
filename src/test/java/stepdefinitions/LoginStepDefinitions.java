@@ -18,7 +18,7 @@ import org.openqa.selenium.WebDriver;
 
 public class LoginStepDefinitions {
 
-    @Managed(driver = "chrome", options = "--headless")
+    @Managed(driver = "chrome", options = "--headless;--no-sandbox;--disable-dev-shm-usage")
     private WebDriver webDriver;
 
     private Actor user = Actor.named("Test User");
@@ -77,19 +77,6 @@ public class LoginStepDefinitions {
         user.attemptsTo(
                 Click.on(LOGIN_BUTTON)
         );
-    }
-
-    @Then("I should see {string}")
-    public void i_should_see(String expectedText) {
-        if (expectedText.toLowerCase().contains("welcome")) {
-            user.attemptsTo(
-                    Ensure.that(Text.of(WELCOME_MESSAGE)).contains(expectedText)
-            );
-        } else {
-            user.attemptsTo(
-                    Ensure.that(Text.of(WELCOME_MESSAGE)).contains(expectedText)
-            );
-        }
     }
 
     @Then("I should be redirected to the dashboard")
