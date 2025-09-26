@@ -55,18 +55,6 @@
                 <artifactId>junit-platform-launcher</artifactId>
                 <version>${junit.platform.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-suite</artifactId>
-                <version>${junit.platform.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-suite-api</artifactId>
-                <version>${junit.platform.version}</version>
-                <scope>test</scope>
-            </dependency>
 
             <!-- JUnit Jupiter verzie -->
             <dependency>
@@ -195,6 +183,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JUnit Platform Suite API pre pokročilé test runners -->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
@@ -206,6 +195,14 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite-api</artifactId>
             <version>${junit.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- WebDriverManager - automaticky sťahuje ChromeDriver -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.6.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,0 +1,89 @@
+name: Serenity BDD Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Spustí každý deň o 2:00 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java: [17, 21]  # Test na rôznych Java verziách
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java }}
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Install Chrome dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Run tests
+      run: |
+        mvn clean test serenity:aggregate
+        
+    - name: Upload Serenity Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: serenity-reports-java-${{ matrix.java }}
+        path: target/site/serenity/
+
+    - name: Publish Test Results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results (Java ${{ matrix.java }})
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/maven@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  deploy-reports:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download reports
+      uses: actions/download-artifact@v4
+      with:
+        name: serenity-reports-java-17
+        path: reports/
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: reports/

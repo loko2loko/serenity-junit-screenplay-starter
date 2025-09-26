@@ -4,6 +4,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import net.serenitybdd.annotations.Managed;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.abilities.BrowseTheWeb;
@@ -18,12 +19,12 @@ import org.openqa.selenium.WebDriver;
 
 public class LoginStepDefinitions {
 
-    @Managed(driver = "chrome", options = "--headless;--no-sandbox;--disable-dev-shm-usage")
+    @Managed(driver = "chrome", options = "--headless;--no-sandbox;--disable-dev-shm-usage;--disable-gpu;--disable-extensions")
     private WebDriver webDriver;
 
     private Actor user = Actor.named("Test User");
 
-    // Page elements (v reálnom projekte by boli v Page Objects)
+    // Page elements
     private static final Target LOGIN_PAGE = Target.the("login page")
             .locatedBy("//h1[text()='Login']");
 
@@ -44,13 +45,23 @@ public class LoginStepDefinitions {
 
     @Before
     public void setup() {
-        user.can(BrowseTheWeb.with(webDriver));
+        try {
+            // WebDriverManager - stiahne ChromeDriver ak chýba
+            WebDriverManager.chromedriver().setup();
+            System.out.println("✅ ChromeDriver configured by WebDriverManager");
+
+            user.can(BrowseTheWeb.with(webDriver));
+
+        } catch (Exception e) {
+            System.err.println("❌ WebDriver setup failed: " + e.getMessage());
+            throw new RuntimeException("Failed to initialize WebDriver", e);
+        }
     }
 
     @Given("I am on the login page")
     public void i_am_on_the_login_page() {
         user.attemptsTo(
-                Open.url("https://example.com/login") // Zmeňte na vašu URL
+                Open.url("https://example.com/login")
         );
 
         user.attemptsTo(
@@ -105,5 +116,24 @@ public class LoginStepDefinitions {
         user.attemptsTo(
                 Ensure.that(webDriver.getCurrentUrl()).contains("/login")
         );
+    }
+
+    @Then("I should see {string}")
+    public void i_should_see(String expectedText) {
+        if (expectedText.toLowerCase().contains("welcome")) {
+            user.attemptsTo(
+                    Ensure.that(Text.of(WELCOME_MESSAGE)).contains(expectedText)
+            );
+        } else if (expectedText.toLowerCase().contains("error") ||
+                expectedText.toLowerCase().contains("invalid")) {
+            user.attemptsTo(
+                    Ensure.that(Text.of(ERROR_MESSAGE)).contains(expectedText)
+            );
+        } else {
+            // Fallback - skús welcome message ako default
+            user.attemptsTo(
+                    Ensure.that(Text.of(WELCOME_MESSAGE)).contains(expectedText)
+            );
+        }
     }
 }
