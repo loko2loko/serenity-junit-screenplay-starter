@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -22,15 +21,34 @@ jobs:
           cache: gradle
 
       - name: Install Chrome
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x gradlew
 
-      - name: Build with Gradle (headless)
+      - name: Build with Gradle (headless, isolated profile)
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          USER_DIR: ${{ runner.temp }}/chrome-user-${{ github.run_id }}-${{ github.run_attempt }}
+          SERENITY_DEBUG: webdriver
+          SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY: ${{ steps.setup-chrome.outputs.chrome-path }}
+          SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS: --headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir=${{ runner.temp }}/chrome-user-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
+          set -e
+          echo "Using CHROME_PATH=$CHROME_PATH"
+          echo "Using USER_DIR=$USER_DIR"
+          echo "SERENITY_DEBUG=$SERENITY_DEBUG"
+          echo "SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY=$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY"
+          echo "SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS=$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS"
+          export SERENITY_DEBUG="$SERENITY_DEBUG"
+          export SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY="$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY"
+          export SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS="$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS"
+          mkdir -p "$USER_DIR"
           ./gradlew --no-daemon clean test aggregate \
-            -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--no-sandbox,--disable-dev-shm-usage,--window-size=1920,1080,--disable-gpu,--remote-allow-origins=*"
+            -Dwebdriver.driver=chrome \
+            -Dserenity.driver.capabilities.'goog:chromeOptions'.binary="$CHROME_PATH" \
+            -Dserenity.driver.capabilities.'goog:chromeOptions'.args='--headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir='"$USER_DIR"
 
       - name: Upload test reports (JUnit)
         if: failure()
