@@ -27,12 +27,15 @@ jobs:
       - name: Build with Maven (headless, isolated profile)
         env:
           CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          USER_DIR: ${{ runner.temp }}/chrome-user-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          USER_DIR="$(mktemp -d)"
+          echo "Using CHROME_PATH=$CHROME_PATH"
+          echo "Using USER_DIR=$USER_DIR"
+          mkdir -p "$USER_DIR"
           mvn -B -ntp verify --file pom.xml \
             -Dwebdriver.driver=chrome \
             -Dserenity.driver.capabilities."goog:chromeOptions".binary="$CHROME_PATH" \
-            -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--disable-features=Translate,BackForwardCache,--no-sandbox,--disable-dev-shm-usage,--window-size=1920,1080,--disable-gpu,--remote-allow-origins=*,--user-data-dir=$USER_DIR"
+            -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir=$USER_DIR"
 
       - name: Upload surefire reports
         if: failure()
