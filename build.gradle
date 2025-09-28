@@ -1,43 +1,59 @@
 plugins {
-    id "net.serenity-bdd.serenity-gradle-plugin" version "4.2.22"
+    id "net.serenity-bdd.serenity-gradle-plugin" version "4.2.34"
     id 'java'
     id 'eclipse'
     id 'idea'
 }
 
 defaultTasks 'clean','test','aggregate'
-
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 16
-targetCompatibility = 16
+// Java 17 podľa POM
+sourceCompatibility = 17
+targetCompatibility = 17
 
 ext {
-    slf4jVersion = '1.7.30'
-    serenityCoreVersion = '4.2.22'
-    junitVersion = '5.10.2'
+    serenityVersion = '4.2.34'
+    junitVersion = '5.13.0'
+    junitPlatformVersion = '1.13.0'
     assertJVersion = '3.24.2'
-    logbackVersion = '1.2.10'
+    commonsLang3Version = '3.18.0'
+    logbackVersion = '1.5.16'
 }
 
 dependencies {
-    testImplementation "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
-                "net.serenity-bdd:serenity-junit5:${serenityCoreVersion}",
-                "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
-                "net.serenity-bdd:serenity-ensure:${serenityCoreVersion}",
-                "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
-                "org.junit.jupiter:junit-jupiter-api:${junitVersion}",
-                "org.assertj:assertj-core:${assertJVersion}",
-                "ch.qos.logback:logback-classic:${logbackVersion}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    // Serenity + Screenplay
+    testImplementation "net.serenity-bdd:serenity-junit5:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-webdriver:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-ensure:${serenityVersion}"
+
+    // JUnit Jupiter + Platform (zarovnané verzie)
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly  "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.junit.platform:junit-platform-commons:${junitPlatformVersion}"
+    testImplementation "org.junit.platform:junit-platform-engine:${junitPlatformVersion}"
+    testImplementation "org.junit.platform:junit-platform-launcher:${junitPlatformVersion}"
+
+    // AssertJ
+    testImplementation "org.assertj:assertj-core:${assertJVersion}"
+
+    // Commons Lang3
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+
+    // Logback (SLF4J 2.x kompatibilný)
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
 }
 
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
     systemProperties System.getProperties()
+    // ekvivalent systemPropertyVariables z POM
+    systemProperty "webdriver.base.url", System.getProperty("webdriver.base.url", "")
 }
 
 gradle.startParameter.continueOnFailure = true
