@@ -21,11 +21,16 @@ jobs:
           cache: maven
 
       - name: Install Chrome
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Build with Maven (headless)
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: |
           mvn -B -ntp verify --file pom.xml \
+            -Dwebdriver.driver=chrome \
+            -Dserenity.driver.capabilities."goog:chromeOptions".binary="$CHROME_PATH" \
             -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--no-sandbox,--disable-dev-shm-usage,--window-size=1920,1080,--disable-gpu,--remote-allow-origins=*"
 
       - name: Upload surefire reports

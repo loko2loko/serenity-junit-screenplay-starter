@@ -24,6 +24,9 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
       - name: Build with Gradle (headless)
         run: |
           ./gradlew --no-daemon clean test aggregate \
