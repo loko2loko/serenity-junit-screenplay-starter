@@ -32,13 +32,20 @@ jobs:
           SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY: ${{ steps.setup-chrome.outputs.chrome-path }}
           SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS: --headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir=${{ runner.temp }}/chrome-user-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
+          set -e
           echo "Using CHROME_PATH=$CHROME_PATH"
           echo "Using USER_DIR=$USER_DIR"
+          echo "SERENITY_DEBUG=$SERENITY_DEBUG"
+          echo "SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY=$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY"
+          echo "SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS=$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS"
+          export SERENITY_DEBUG="$SERENITY_DEBUG"
+          export SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY="$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY"
+          export SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS="$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS"
           mkdir -p "$USER_DIR"
           mvn -B -ntp verify --file pom.xml \
             -Dwebdriver.driver=chrome \
             -Dserenity.driver.capabilities."goog:chromeOptions".binary="$CHROME_PATH" \
-            -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir=$USER_DIR"
+            -Dserenity.driver.capabilities."goog:chrome
 
       - name: Upload surefire reports
         if: failure()
