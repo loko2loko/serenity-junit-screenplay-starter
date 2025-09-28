@@ -27,6 +27,16 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x gradlew
 
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Build with Gradle (headless, isolated profile)
         env:
           CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
@@ -45,10 +55,27 @@ jobs:
           export SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY="$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY"
           export SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS="$SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS"
           mkdir -p "$USER_DIR"
-          ./gradlew --no-daemon clean test aggregate \
-            -Dwebdriver.driver=chrome \
-            -Dserenity.driver.capabilities.'goog:chromeOptions'.binary="$CHROME_PATH" \
-            -Dserenity.driver.capabilities.'goog:chromeOptions'.args='--headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir='"$USER_DIR"
+          # Try build with retry mechanism
+          for i in {1..3}; do
+            echo "Build attempt $i"
+            if ./gradlew --no-daemon clean test aggregate \
+              -Dwebdriver.driver=chrome \
+              -Dserenity.driver.capabilities.'goog:chromeOptions'.binary="$CHROME_PATH" \
+              -Dserenity.driver.capabilities.'goog:chromeOptions'.args='--headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir='"$USER_DIR"; then
+              echo "Build successful on attempt $i"
+              break
+            else
+              echo "Build failed on attempt $i"
+              if [ $i -lt 3 ]; then
+                echo "Cleaning Gradle cache and retrying..."
+                rm -rf ~/.gradle/caches/jars-*
+                sleep 10
+              else
+                echo "All build attempts failed"
+                exit 1
+              fi
+            fi
+          done
 
       - name: Upload test reports (JUnit)
         if: failure()
