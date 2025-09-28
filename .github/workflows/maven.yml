@@ -44,8 +44,8 @@ jobs:
           mkdir -p "$USER_DIR"
           mvn -B -ntp verify --file pom.xml \
             -Dwebdriver.driver=chrome \
-            -Dserenity.driver.capabilities."goog:chromeOptions".binary="$CHROME_PATH" \
-            -Dserenity.driver.capabilities."goog:chrome
+            -Dserenity.driver.capabilities.'goog:chromeOptions'.binary="$CHROME_PATH" \
+            -Dserenity.driver.capabilities.'goog:chromeOptions'.args='--headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir='"$USER_DIR"
 
       - name: Upload surefire reports
         if: failure()
