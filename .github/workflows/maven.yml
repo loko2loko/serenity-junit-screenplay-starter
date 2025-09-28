@@ -29,6 +29,8 @@ jobs:
           CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
           USER_DIR: ${{ runner.temp }}/chrome-user-${{ github.run_id }}-${{ github.run_attempt }}
           SERENITY_DEBUG: webdriver
+          SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__BINARY: ${{ steps.setup-chrome.outputs.chrome-path }}
+          SERENITY_DRIVER_CAPABILITIES__GOOG_CHROMEOPTIONS__ARGS: --headless=new,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920,1080,--remote-allow-origins=*,--user-data-dir=${{ runner.temp }}/chrome-user-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           echo "Using CHROME_PATH=$CHROME_PATH"
           echo "Using USER_DIR=$USER_DIR"
