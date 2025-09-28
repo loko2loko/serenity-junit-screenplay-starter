@@ -24,7 +24,9 @@ jobs:
         uses: browser-actions/setup-chrome@v1
 
       - name: Build with Maven (headless)
-        run: mvn -B -ntp verify -Dheadless=true --file pom.xml
+        run: |
+          mvn -B -ntp verify --file pom.xml \
+            -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--no-sandbox,--disable-dev-shm-usage,--window-size=1920,1080,--disable-gpu,--remote-allow-origins=*"
 
       - name: Upload surefire reports
         if: failure()

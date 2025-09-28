@@ -24,8 +24,10 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Build with Gradle (wrapper)
-        run: ./gradlew --no-daemon clean test aggregate -Dheadless=true
+      - name: Build with Gradle (headless)
+        run: |
+          ./gradlew --no-daemon clean test aggregate \
+            -Dserenity.driver.capabilities."goog:chromeOptions".args="--headless=new,--no-sandbox,--disable-dev-shm-usage,--window-size=1920,1080,--disable-gpu,--remote-allow-origins=*"
 
       - name: Upload test reports (JUnit)
         if: failure()
